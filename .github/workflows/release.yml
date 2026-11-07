@@ -1,0 +1,46 @@
+name: Release Triple K
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+concurrency:
+  group: triple-k-release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: companion/go.mod
+          cache-dependency-path: companion/go.sum
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test Companion
+        working-directory: companion
+        run: go test ./...
+      - name: Test addon
+        shell: bash
+        run: |
+          python -m pip install lupa==2.6
+          cd addon
+          python -c 'from lupa.luajit21 import LuaRuntime; LuaRuntime().execute("bit=require(\"bit\"); dofile(\"tests/test_addon.lua\")")'
+      - name: Build both components and update manifest
+        env:
+          DOINK_CHANNEL_WEBHOOK: ${{ secrets.DOINK_CHANNEL_WEBHOOK }}
+        run: python scripts/build_release.py
+      - name: Publish release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = (Get-Content companion/VERSION).Trim()
+          $tag = "v$version"
+          gh release view $tag --repo $env:GITHUB_REPOSITORY 2>$null
+          if ($LASTEXITCODE -eq 0) { throw "Release already exists. Bump both versions before releasing again." }
+          gh release create $tag "dist/DOINK-Triple-K-$version.zip" "dist/DOINK-Triple-K-$version-update.zip" dist/update.json --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "DOINK - Triple K $version" --notes-file RELEASE-NOTES.md --latest
+          if ($LASTEXITCODE -ne 0) { throw "Release upload failed" }

@@ -1,0 +1,24 @@
+name: Tests
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: companion/go.mod
+          cache-dependency-path: companion/go.sum
+      - name: Companion tests
+        working-directory: companion
+        run: go test ./...
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Addon tests
+        run: |
+          python -m pip install lupa==2.6
+          cd addon
+          python -c 'from lupa.luajit21 import LuaRuntime; LuaRuntime().execute("bit=require(\"bit\"); dofile(\"tests/test_addon.lua\")")'

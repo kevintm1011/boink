@@ -1,0 +1,31 @@
+## Interface: 16001
+## Title: DOINK - Triple K
+## Notes: Private Triple K Discord edition with optional screenshots. Announces your level-ups, rare loot, deaths and boss kills in guild chat. The optional companion app mirrors them to Discord.
+## Version: 0.19.0
+## SavedVariables: DOINKDB
+
+# Interface from: /run print(select(4, GetBuildInfo()))
+# (Forever beta 1.60.1.70124). Bump when the client patches.
+
+# Every notifier is listed up front: TOC changes need a full client restart,
+# Lua changes only need /reload.
+
+Json.lua
+Defaults.lua
+Core.lua
+Notifiers\LevelUp.lua
+Notifiers\Loot.lua
+Notifiers\Death.lua
+Notifiers\Quest.lua
+Notifiers\BossKill.lua
+Notifiers\SkillUp.lua
+Notifiers\Mount.lua
+Notifiers\Duel.lua
+Notifiers\Battleground.lua
+Achievements.lua
+InstanceAchievements.lua
+AchievementWindow.lua
+CharacterButton.lua
+Announce.lua
+Transports\Screenshot.lua
+Options.lua

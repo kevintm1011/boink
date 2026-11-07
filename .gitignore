@@ -1,0 +1,13 @@
+companion/config.toml
+companion/state.json
+companion/state.json.tmp
+companion/doink.log*
+__pycache__/
+.venv/
+companion/*.syso
+companion/cmd/doink/*.syso
+companion/dist/
+CLAUDE.local.md
+
+dist/
+*.zip
