@@ -13,6 +13,7 @@ local function Add(id, category, title, description, key, target)
   local entry = { id = id, category = category, title = title,
     description = description, key = key, target = target }
   A.catalog[#A.catalog + 1], A.byID[id] = entry, entry
+  return entry
 end
 for _, n in ipairs({ 5, 10, 20, 30, 40, 50, 60 }) do
   Add("level_" .. n, "levels", "Level " .. n, "Reach character level " .. n .. ".", "level", n)
@@ -65,6 +66,7 @@ function A.Advance(key, value, baseline)
   for _, entry in ipairs(A.catalog) do
     if entry.key == key and db.values[key] >= entry.target and not db.unlocked[entry.id] then
       db.unlocked[entry.id] = { at = time(), discovered = baseline and true or false }
+      if A.Leaderboard then A.Leaderboard.MarkDirty() end
       if not baseline and entry.category ~= "levels" then
         ns:Print("|cffffd166Achievement unlocked: %s|r", entry.title)
         if ns:GetOption("achievement", "enabled") and ns:GetOption("achievement", entry.category) then
@@ -271,6 +273,7 @@ function A.Init()
   A.Sync()
   if A.InitInstances then A.InitInstances() end
   if A.AttachCharacterButton then A.AttachCharacterButton() end
+  if A.Leaderboard then A.Leaderboard.Init() end
   if not watcher then
     watcher = CreateFrame("Frame")
     watcher:SetScript("OnEvent", function(_, event, ...) A.Event(event, ...) end)

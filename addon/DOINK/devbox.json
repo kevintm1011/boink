@@ -1,0 +1,44 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.18.4/.schema/devbox.schema.json",
+  "packages": [
+    "go@latest",
+    "luajit@latest",
+    "gh@latest",
+    "golangci-lint@latest",
+    "luajitPackages.luacheck@latest"
+  ],
+  "shell": {
+    "init_hook": [],
+    "scripts": {
+      "test": [
+        "devbox run test:addon",
+        "devbox run test:companion"
+      ],
+      "test:addon": [
+        "cd addon && luajit tests/test_addon.lua"
+      ],
+      "test:companion": [
+        "cd companion && go test ./..."
+      ],
+      "fixture": [
+        "cd addon && DOINK_WRITE_FIXTURE=1 luajit tests/test_addon.lua"
+      ],
+      "companion": [
+        "cd companion && go run ./cmd/doink \"$@\""
+      ],
+      "dry-run": [
+        "cd companion && go run ./cmd/doink --dry-run \"$@\""
+      ],
+      "lint": [
+        "devbox run lint:addon",
+        "devbox run lint:companion"
+      ],
+      "lint:addon": [
+        "luacheck addon --config .luacheckrc"
+      ],
+      "lint:companion": [
+        "cd companion && gofmt -l . && go vet ./... && golangci-lint run ./..."
+      ]
+    }
+  }
+}
